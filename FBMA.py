@@ -5,13 +5,13 @@ from datetime import datetime
 from collections import Counter
 
 def fma():
-    userInput = input('Directory of only messages_.json files': ')
+    #userInput = input('Directory of only messages_.json files': ')
 
     searchInput = str(input('Search for word: ').lower())
 
-    directory = userInput
+    directory = 'fma/messages/noura'
     dir_list = os.listdir(directory)
-    
+
     name1Count = 0
     name2Count = 0
     word1Count = 0
@@ -24,13 +24,13 @@ def fma():
     dateCount = []
 
     for data in dir_list:
-        data = open(directory+'/'+data).read()
+        with open(directory+'/'+data) as json_file:
+            data = json.load(json_file)
 
         name1 = data['participants'][0]['name']
         name2 = data['participants'][1]['name']
 
         for p in data['messages']:
-
                 timestamp  = datetime.utcfromtimestamp(p['timestamp_ms'] / 1000).strftime('%Y-%m-%d  %H:%M:%S')
                 timestamp2 = datetime.utcfromtimestamp(p['timestamp_ms'] / 1000).strftime('%Y-%m-%d')
                 dateArray.append(timestamp2)
@@ -78,7 +78,7 @@ def fma():
                                     print(i)
                                     search2Count += 1
 
-    dateCount = Counter(dateArray).most_common() # sorted date list with duplicates
+    dateCount = Counter(dateArray).most_common() # sorted date list with duplicates (sorted by message count)
     dateArrayNoDup = list(dict.fromkeys(dateArray))  # removes duplicates from date array, still sorted
 
     totalMessages = name1Count + name2Count
@@ -94,8 +94,8 @@ def fma():
 
     print('Conversation between ' + name1 + ' and ' + name2 + ':\n')
     print('Message stats:')
-    print(firstName1 + ' has sent ' + str(name1Count) + ' (' + str(percentage1) + '%) messages. ' + str(pic1Count) + ' of those messages contains at least one image.')
-    print(firstName2 + ' has sent ' + str(name2Count) + ' (' + str(percentage2) + '%) messages. ' + str(pic2Count) + ' of those messages contains at least one image.')
+    print(firstName1 + ' has sent ' + str(name1Count) + ' (' + str(percentage1) + '%) messages. ' + str(pic1Count) + ' of those messages contain at least one image.')
+    print(firstName2 + ' has sent ' + str(name2Count) + ' (' + str(percentage2) + '%) messages. ' + str(pic2Count) + ' of those messages contain at least one image.')
 
     print(str(totalMessages) + ' total messages sent, with ' + str(picTotal) + ' messages containing at least one image \n')
 
@@ -109,4 +109,5 @@ def fma():
     print('Date stats:')
     print('Latest message date: ' + str(dateArray[0]) + ', first message date: ' + str(dateArray[-1]) + '. \n' + str(len(dateArrayNoDup)) + ' days between first and last message. \nThat makes ' + str(round(totalMessages / len(dateArrayNoDup))) + ' messages a day on average.')
     print(str(dateCount[0][0]) + ' has been the date with most sent messages, with ' + str(dateCount[0][1]) + ' messages sent.\n\n')
+
 fma()
