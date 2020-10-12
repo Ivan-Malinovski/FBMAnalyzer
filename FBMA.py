@@ -1,21 +1,17 @@
 import json
 import codecs
+import os
 from datetime import datetime
 from collections import Counter
 
+def fma():
+    userInput = input('Directory of only messages_.json files': ')
 
-userInput = input('Drag and drop the message_1.json file here: ')
+    searchInput = str(input('Search for word: ').lower())
 
-searchInput = str(input('Search for word: ').lower())
-
-messageFile = str(userInput)
-
-with open(messageFile) as json_file:
-    data = json.load(json_file)
-
-    name1 = data['participants'][0]['name']
-    name2 = data['participants'][1]['name']
-
+    directory = userInput
+    dir_list = os.listdir(directory)
+    
     name1Count = 0
     name2Count = 0
     word1Count = 0
@@ -27,55 +23,60 @@ with open(messageFile) as json_file:
     dateArray = []
     dateCount = []
 
-    for p in data['messages']:
+    for data in dir_list:
+        data = open(directory+'/'+data).read()
 
-            timestamp  = datetime.utcfromtimestamp(p['timestamp_ms'] / 1000).strftime('%Y-%m-%d  %H:%M:%S')
-            timestamp2 = datetime.utcfromtimestamp(p['timestamp_ms'] / 1000).strftime('%Y-%m-%d')
-            dateArray.append(timestamp2)
+        name1 = data['participants'][0]['name']
+        name2 = data['participants'][1]['name']
 
+        for p in data['messages']:
 
-            nametime = print(p['sender_name'] + ' (' + timestamp + '):')
+                timestamp  = datetime.utcfromtimestamp(p['timestamp_ms'] / 1000).strftime('%Y-%m-%d  %H:%M:%S')
+                timestamp2 = datetime.utcfromtimestamp(p['timestamp_ms'] / 1000).strftime('%Y-%m-%d')
+                dateArray.append(timestamp2)
 
-            # message counter
-            if p['sender_name'] == name1:
-                name1Count += 1
-            else:
-                name2Count += 1
+                nametime = print(p['sender_name'] + ' (' + timestamp + '):')
 
-            # photos message counter
-            if 'photos' in p:
-                nametime
-                print('Photo message \n\n')
+                # message counter
                 if p['sender_name'] == name1:
-                    pic1Count += 1
+                    name1Count += 1
                 else:
-                    pic2Count += 1
+                    name2Count += 1
 
-            elif 'content' not in p:
-                nametime
-                print('Other media content \n\n')
+                # photos message counter
+                if 'photos' in p:
+                    nametime
+                    print('Photo message \n\n')
+                    if p['sender_name'] == name1:
+                        pic1Count += 1
+                    else:
+                        pic2Count += 1
 
-            else:
-                nametime
-                text = p['content']
-                textLength = len(text.split(' '))
-                print(text + '\n\n')
+                elif 'content' not in p:
+                    nametime
+                    print('Other media content \n\n')
 
-                ## word counter
-                if p['sender_name'] == name1:
-                    word1Count += textLength ## only splits spaces, not linebreaks
-                    if searchInput is not False:
-                        for i in range(textLength):
-                            if searchInput in text.split(' ')[i].lower():
-                                print(i)
-                                search1Count += 1
                 else:
-                    word2Count += textLength
-                    if searchInput is not False:
-                        for i in range(textLength):
-                            if searchInput in text.split(' ')[i].lower():
-                                print(i)
-                                search2Count += 1
+                    nametime
+                    text = p['content']
+                    textLength = len(text.split(' '))
+                    print(text + '\n\n')
+
+                    # word counter
+                    if p['sender_name'] == name1:
+                        word1Count += textLength ## only splits spaces, not linebreaks
+                        if searchInput is not False:
+                            for i in range(textLength):
+                                if searchInput in text.split(' ')[i].lower():
+                                    print(i)
+                                    search1Count += 1
+                    else:
+                        word2Count += textLength
+                        if searchInput is not False:
+                            for i in range(textLength):
+                                if searchInput in text.split(' ')[i].lower():
+                                    print(i)
+                                    search2Count += 1
 
     dateCount = Counter(dateArray).most_common() # sorted date list with duplicates
     dateArrayNoDup = list(dict.fromkeys(dateArray))  # removes duplicates from date array, still sorted
@@ -98,7 +99,6 @@ with open(messageFile) as json_file:
 
     print(str(totalMessages) + ' total messages sent, with ' + str(picTotal) + ' messages containing at least one image \n')
 
-
     print('Word stats:')
     print('Total amount of words for ' + firstName1 + ': ' + str(word1Count) + ' (' + str(average1) + ' words per message on average).')
     print('Total amount of words for ' + firstName2 + ': ' + str(word2Count) + ' (' + str(average2) + ' words per message on average).')
@@ -107,10 +107,6 @@ with open(messageFile) as json_file:
     print('Total word count: ' + str(totalWordcount) + '\n')
 
     print('Date stats:')
-    print('Latest message date: ' + str(dateArray[0]) + ', first message date: ' + str(dateArray[-1]) + '. ' + str(len(dateArrayNoDup)) + ' days between first and last message. \nThat makes ' + str(round(totalMessages / len(dateArrayNoDup))) + ' messages a day on average.')
+    print('Latest message date: ' + str(dateArray[0]) + ', first message date: ' + str(dateArray[-1]) + '. \n' + str(len(dateArrayNoDup)) + ' days between first and last message. \nThat makes ' + str(round(totalMessages / len(dateArrayNoDup))) + ' messages a day on average.')
     print(str(dateCount[0][0]) + ' has been the date with most sent messages, with ' + str(dateCount[0][1]) + ' messages sent.\n\n')
-
-    # TODO
-    # print('First message of the day is mostly sent by ...')
-    # print('Average response time in active conversation is ...')
-
+fma()
